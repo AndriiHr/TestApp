@@ -37,17 +37,7 @@ namespace App.Api.Controllers
             await _mediator.Send(new RegisterUserCommand(userDto));
 
             return Ok();
-        }
-
-        [Route("image")]
-        [HttpPut]
-        public async Task<IActionResult> UpdateImageProfile([FromBody] UpdateImageProfileRequest request)
-        {
-            string filePath = UploadedFile(request);
-            await _mediator.Send(new UpdateUserProfileImageCommand(request.UserId, filePath));
-
-            return Ok();
-        }
+        } 
 
         [Route("users")]
         [HttpGet]
@@ -75,7 +65,6 @@ namespace App.Api.Controllers
             return Ok();
         }
 
-
         [Route("{userId}")]
         [HttpDelete]
         [Authorize(Role = UserRole.Manager)]
@@ -92,6 +81,16 @@ namespace App.Api.Controllers
         public async Task<IActionResult> AssignProjectToUser([FromRoute] int userId, [FromRoute] int projectId)
         {
             await _mediator.Send(new AssignUserToProjectCommand(userId, projectId));
+
+            return Ok();
+        }
+
+        [Route("image")]
+        [HttpPut]
+        public async Task<IActionResult> UpdateImageProfile([FromBody] UpdateImageProfileRequest request)
+        {
+            string filePath = UploadedFile(request);
+            await _mediator.Send(new UpdateUserProfileImageCommand(request.UserId, filePath));
 
             return Ok();
         }

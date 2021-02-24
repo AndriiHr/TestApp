@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -7,6 +6,7 @@ using System.Threading.Tasks;
 using App.Domain.Enums;
 using App.Domain.IRepositories;
 using App.Domain.SeedWork;
+using App.Domain.Specifications;
 using Microsoft.EntityFrameworkCore;
 using AppContext = App.Infrastructure.Database.AppContext;
 
@@ -31,11 +31,19 @@ namespace App.Infrastructure.Repositories
             return await query.Where(predicate).ToListAsync();
         }
 
-        public async Task<T> GetSingle(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includePaths)
+        public async Task<IEnumerable<T>> GetAll(Specification<T> spec, params Expression<Func<T, object>>[] include)
+        {
+            var dbSet = _entities.AsNoTracking();
+            var query = include.Aggregate(dbSet, (current, item) => EvaluateInclude(current, item));
+
+            return await query.Where(spec.ToExpression()).ToListAsync();
+        }
+
+        public async Task<T> GetSingle(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] include)
         {
             var dbSet = _entities.AsNoTracking();
 
-            var query = includePaths.Aggregate(dbSet, (current, item) => EvaluateInclude(current, item));
+            var query = include.Aggregate(dbSet, (current, item) => EvaluateInclude(current, item));
             return await query.Where(predicate).FirstOrDefaultAsync();
         }
 
@@ -85,5 +93,6 @@ namespace App.Infrastructure.Repositories
 
             return current.Include(item);
         }
+
     }
 }
