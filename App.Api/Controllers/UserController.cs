@@ -1,9 +1,14 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
+using App.Api.Attributes;
 using App.Application.Users;
 using App.Application.Users.Commands;
 using App.Application.Users.Queries;
+using App.Domain.Enums;
 using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 
 namespace App.Api.Controllers
@@ -14,19 +19,33 @@ namespace App.Api.Controllers
     {
         private readonly IMediator _mediator;
         private readonly IMapper _mapper;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public UserController(IMediator mediator, IMapper mapper)
+        public UserController(IMediator mediator, IMapper mapper, IWebHostEnvironment webHostEnvironment)
         {
             _mediator = mediator;
             _mapper = mapper;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         [Route("")]
         [HttpPost]
+        [Authorize(Role = UserRole.Manager)]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterUserRequest request)
         {
             var userDto = _mapper.Map<UserDto>(request);
-            var user = await _mediator.Send(new RegisterUserCommand(userDto));
+            await _mediator.Send(new RegisterUserCommand(userDto));
+
+            return Ok();
+        }
+
+        [Route("image")]
+        [HttpPut]
+        public async Task<IActionResult> UpdateImageProfile([FromBody] UpdateImageProfileRequest request)
+        {
+            string filePath = UploadedFile(request);
+            await _mediator.Send(new UpdateUserProfileImageCommand(request.UserId, filePath));
+
             return Ok();
         }
 
@@ -74,5 +93,23 @@ namespace App.Api.Controllers
 
             return Ok();
         }
+
+        private string UploadedFile(UpdateImageProfileRequest model)
+        {
+            string uniqueFileName = null;
+
+            if (model.ImageProfile != null)
+            {
+                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images");
+                uniqueFileName = Guid.NewGuid().ToString() + "_" + model.ImageProfile.FileName;
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    model.ImageProfile.CopyTo(fileStream);
+                }
+            }
+            return uniqueFileName;
+        }
+
     }
 }

@@ -12,6 +12,7 @@ namespace App.Domain.Users
         public string FirstName { get; private set; }
         public string LastName { get; private set; }
         public UserRole UserRole { get; private set; }
+        public string ImageProfile { get; set; }
 
         private List<Project> _projects;
         public IReadOnlyCollection<Project> Projects => _projects.AsReadOnly();
@@ -31,17 +32,6 @@ namespace App.Domain.Users
             _projects = new List<Project>();
             this.AddDomainEvent(new UserCreatedEvent(email));
         }
-
-        //public static User CreateRegistered(
-        //    string email,
-        //    string firstName,
-        //    string lastName,
-        //    UserRole role,
-        //    IUserUniquenessChecker checker)
-        //{
-        //    CheckRule(new UserEmailUniqueRule(email, checker));
-        //    return new User(email, firstName, lastName, role);
-        //}
 
         public void SetUserRole(UserRole userRole)
         {

@@ -1,25 +1,20 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using App.Application.MappingProfiles;
 using App.Infrastructure;
-using AutoMapper;
 using MediatR;
 using System.Reflection;
 using App.Application.DomainServices;
 using App.Domain.Users.Rules;
 using App.Application.Users.Commands;
 using App.Domain.SeedWork;
+using App.Application.Services;
+using App.Api.Helpers;
 
 namespace App.Api
 {
@@ -45,12 +40,41 @@ namespace App.Api
 
             services.AddScoped(typeof(IUserUniquenessChecker), typeof(UserUniquenessChecker));
             services.AddScoped(typeof(IBusinessRule), typeof(UserEmailUniqueRule));
+            services.AddScoped(typeof(IUserService), typeof(UserService));
 
 
             services.InitializeServices(Configuration.GetConnectionString("DatabaseConnection"), Configuration.GetSection("MigrationAssembly").Value);
 
+     
 
-            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "App.Api", Version = "v1" }); });
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "App.Api", Version = "v1" });
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme.",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                  {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    }, new List<string>()
+                   }
+                });
+
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,8 +91,8 @@ namespace App.Api
 
             app.UseRouting();
 
-            app.UseAuthorization();
-
+            //app.UseAuthorization();
+            app.UseMiddleware<JwtMiddleware>();
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }

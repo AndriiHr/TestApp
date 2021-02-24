@@ -11,7 +11,7 @@ namespace App.Application.Users
         public string LastName { get; set; }
         public string Email { get; set; }
         public UserRole Role { get; set; }
-
+        public string ImageProfile { get; set; }
         public List<ProjectDto> Projects { get; set; }
     }
 }
