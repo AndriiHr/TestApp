@@ -109,6 +109,7 @@ namespace App.Api.Controllers
                     model.ImageProfile.CopyTo(fileStream);
                 }
             }
+
             return uniqueFileName;
         }
 
