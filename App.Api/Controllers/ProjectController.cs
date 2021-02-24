@@ -1,7 +1,9 @@
 ﻿using System.Threading.Tasks;
+using App.Api.Attributes;
 using App.Application.Projects;
 using App.Application.Projects.Commands;
 using App.Application.Projects.Queries;
+using App.Domain.Enums;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -24,6 +26,7 @@ namespace App.Api.Controllers
 
         [Route("")]
         [HttpPost]
+        [Authorize(Role = UserRole.Manager)]
         public async Task<IActionResult> CreateProject([FromBody] CreateProjectRequest request)
         {
             var projectDto = _mapper.Map<ProjectDto>(request);
@@ -34,7 +37,7 @@ namespace App.Api.Controllers
 
         [Route("projects")]
         [HttpGet]
-        public async Task<IActionResult> GetRpojects([FromRoute] bool active = true)
+        public async Task<IActionResult> GetProjects([FromRoute] bool active = true)
         {
             var projects = await _mediator.Send(new GetProjectsQuery(active));
 
@@ -52,6 +55,7 @@ namespace App.Api.Controllers
 
         [Route("")]
         [HttpPut]
+        [Authorize(Role = UserRole.Manager)]
         public async Task<IActionResult> UpdateProject([FromBody] UpdateProjectRequest request)
         {
             await _mediator.Send(new UpdateProjectCommand(request.Project));
@@ -62,6 +66,7 @@ namespace App.Api.Controllers
 
         [Route("{projectId}")]
         [HttpDelete]
+        [Authorize(Role = UserRole.Manager)]
         public async Task<IActionResult> DeleteProject([FromRoute] int projectId)
         {
             await _mediator.Send(new DeleteProjectCommand(projectId));
@@ -71,6 +76,7 @@ namespace App.Api.Controllers
 
         [Route("{userId}/{projectId}")]
         [HttpPut]
+        [Authorize(Role = UserRole.Manager)]
         public async Task<IActionResult> AssignProjectToUser([FromRoute] int userId, [FromRoute] int projectId)
         {
             await _mediator.Send(new AssignUserToProjectCommand(projectId, userId));

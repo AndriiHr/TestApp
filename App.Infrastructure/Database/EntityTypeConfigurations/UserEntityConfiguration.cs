@@ -18,7 +18,6 @@ namespace App.Infrastructure.Database.EntityTypeConfigurations
             builder.Property(x => x.UserRole).IsRequired();
             builder.Property(x => x.ImageProfile);
 
-
             builder.HasMany(x => x.Projects)
                 .WithMany(x => x.Users);
         }

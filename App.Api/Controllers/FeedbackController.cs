@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
+using App.Api.Attributes;
 using App.Application.Feedbacks.Commands;
 using App.Application.Feedbacks.Queries;
+using App.Domain.Enums;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +23,7 @@ namespace App.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Role = UserRole.Manager)]
         public async Task<IActionResult> AssignFeedback([FromBody] AssignFeedbackRequest request)
         {
             await _mediator.Send(new AssignFeedbackToProjectCommand(request.Feedback, request.ProjectId));
@@ -38,6 +41,7 @@ namespace App.Api.Controllers
         }
 
         [HttpPut]
+        [Authorize(Role = UserRole.Manager)]
         public async Task<IActionResult> UpdateFeedback([FromBody] EditFeedbackRequest request)
         {
             var project = await _mediator.Send(new EditFeedbackCommand(request.Feedback));
@@ -47,6 +51,7 @@ namespace App.Api.Controllers
 
         [Route("{feedbackId}")]
         [HttpDelete]
+        [Authorize(Role = UserRole.Manager)]
         public async Task<IActionResult> DeleteFeedback([FromRoute] int feedbackId)
         {
             await _mediator.Send(new DeleteFeedbackCommand(feedbackId));

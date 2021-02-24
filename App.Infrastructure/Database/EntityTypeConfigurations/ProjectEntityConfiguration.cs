@@ -16,8 +16,7 @@ namespace App.Infrastructure.Database.EntityTypeConfigurations
             builder.Property(x => x.Description).HasMaxLength(250);
             builder.Property(x => x.StartDate).IsRequired();
             builder.Property(x => x.EndDate).IsRequired();
-            
-            //builder.Property(x => x.Technologies);
+            builder.Property(x => x.UsedTechnologies).HasMaxLength(400);
 
             builder.HasMany(x => x.Users)
                 .WithMany(x => x.Projects);

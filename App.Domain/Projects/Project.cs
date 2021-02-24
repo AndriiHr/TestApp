@@ -13,9 +13,8 @@ namespace App.Domain.Projects
         public DateTime EndDate { get; protected set; }
         public string Description { get; protected set; }
         public string Name { get; protected set; }
+        public string UsedTechnologies { get; protected set; }
 
-        //private List<string> _usedTechnologies;
-        //public List<string> Technologies => _usedTechnologies;
 
         private List<User> _users;
         public IReadOnlyCollection<User> Users => _users.AsReadOnly();
@@ -25,7 +24,6 @@ namespace App.Domain.Projects
 
         public Project()
         {
-            //_usedTechnologies = new List<string>();
             _users = new List<User>();
             _feedbacks = new List<Feedback>();
         }
@@ -36,7 +34,6 @@ namespace App.Domain.Projects
             StartDate = startDate;
             EndDate = endDate;
             Description = description;
-            //_usedTechnologies = new List<string>();
             _users = new List<User>();
             _feedbacks = new List<Feedback>();
 

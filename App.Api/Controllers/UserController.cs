@@ -78,6 +78,7 @@ namespace App.Api.Controllers
 
         [Route("{userId}")]
         [HttpDelete]
+        [Authorize(Role = UserRole.Manager)]
         public async Task<IActionResult> DeleteUser([FromRoute] int userId)
         {
             await _mediator.Send(new DeleteUserCommand(userId));
@@ -87,6 +88,7 @@ namespace App.Api.Controllers
 
         [Route("{userId}/{projectId}")]
         [HttpPut]
+        [Authorize(Role = UserRole.Manager)]
         public async Task<IActionResult> AssignProjectToUser([FromRoute] int userId, [FromRoute] int projectId)
         {
             await _mediator.Send(new AssignUserToProjectCommand(userId, projectId));
